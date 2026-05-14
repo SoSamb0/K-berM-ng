@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KÜBERKAITSEAKADEEMIA – Küberturvalisuse Mäng</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--green:#00ff41;--cyan:#00d4ff;--red:#ff3131;--yellow:#ffd700;--bg:#050a0e;--panel:rgba(0,212,255,0.05);--border:rgba(0,212,255,0.25);--border-g:rgba(0,255,65,0.3);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:#c8e6f0;font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden;}
+  #mc{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.18;pointer-events:none;}
+  .sl{position:fixed;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.1) 2px,rgba(0,0,0,0.1) 4px);z-index:1;pointer-events:none;}
+  .gb{position:fixed;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(0,212,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.04) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none;}
+  #app{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+  .screen{width:100%;max-width:920px;display:none;animation:fi 0.55s ease;}
+  .screen.active{display:block;}
+  @keyframes fi{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  .glitch{position:relative;display:inline-block;font-family:'Orbitron',monospace;font-weight:900;color:var(--cyan);}
+  .glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;}
+  .glitch::before{color:var(--green);clip:rect(0,0,0,0);animation:g1 3.5s infinite linear alternate-reverse;}
+  .glitch::after{color:var(--red);clip:rect(0,0,0,0);animation:g2 2.8s infinite linear alternate-reverse;}
+  @keyframes g1{0%,90%,100%{clip:rect(0,900px,0,0);transform:none;}92%{clip:rect(18px,900px,55px,0);transform:translate(-3px,0);}95%{clip:rect(70px,900px,98px,0);transform:translate(3px,0);}98%{clip:rect(40px,900px,75px,0);transform:translate(-2px,0);}}
+  @keyframes g2{0%,85%,100%{clip:rect(0,900px,0,0);transform:none;}87%{clip:rect(48px,900px,88px,0);transform:translate(3px,0);}91%{clip:rect(10px,900px,38px,0);transform:translate(-3px,0);}94%{clip:rect(66px,900px,108px,0);transform:translate(2px,0);}}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:28px 32px;position:relative;overflow:hidden;backdrop-filter:blur(4px);}
+  .panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation:sc 3s linear infinite;}
+  @keyframes sc{0%{opacity:0;}50%{opacity:1;}100%{opacity:0;}}
+  .c1,.c2,.c3,.c4{position:absolute;width:18px;height:18px;}
+  .c1{top:8px;left:8px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+  .c2{top:8px;right:8px;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+  .c3{bottom:8px;left:8px;border-bottom:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+  .c4{bottom:8px;right:8px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+  #sw{text-align:center;}
+  .li{width:110px;height:110px;margin:0 auto 14px;display:block;}
+  .mt{font-size:clamp(26px,4.8vw,50px);letter-spacing:0.08em;line-height:1.1;margin-bottom:8px;}
+  .st{font-family:'Share Tech Mono',monospace;color:var(--green);font-size:14px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:24px;animation:pu 2s ease-in-out infinite;}
+  @keyframes pu{0%,100%{opacity:0.65;}50%{opacity:1;}}
+  .wt{font-size:14px;color:rgba(200,230,240,0.72);line-height:1.75;max-width:580px;margin:0 auto 26px;font-family:'Share Tech Mono',monospace;}
+  .sr{display:flex;justify-content:center;gap:20px;margin-bottom:28px;flex-wrap:wrap;}
+  .sc2{background:rgba(0,255,65,0.06);border:1px solid var(--border-g);border-radius:10px;padding:13px 20px;min-width:130px;}
+  .sn{font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--green);display:block;}
+  .sl2{font-size:11px;color:rgba(200,230,240,0.55);letter-spacing:0.08em;margin-top:4px;display:block;}
+  .tp{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:26px;}
+  .pill{background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.18);border-radius:20px;padding:5px 14px;font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--cyan);letter-spacing:0.08em;}
+  .bs{background:transparent;border:2px solid var(--cyan);color:var(--cyan);font-family:'Orbitron',monospace;font-size:15px;font-weight:700;letter-spacing:0.15em;padding:15px 46px;border-radius:8px;cursor:pointer;position:relative;overflow:hidden;transition:all 0.3s;text-transform:uppercase;}
+  .bs::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.18),transparent);transition:left 0.4s;}
+  .bs:hover::before{left:100%;}
+  .bs:hover{background:rgba(0,212,255,0.11);box-shadow:0 0 24px rgba(0,212,255,0.38);transform:scale(1.04);}
+  .bs:active{transform:scale(0.98);}
+  .hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding:10px 16px;background:rgba(0,0,0,0.42);border:1px solid var(--border);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:13px;flex-wrap:wrap;gap:8px;}
+  .hi{display:flex;align-items:center;gap:7px;color:rgba(200,230,240,0.65);}
+  .hv{color:var(--cyan);font-weight:bold;font-size:15px;}
+  .hg{color:var(--green);}
+  .lv{display:flex;gap:4px;}
+  .ht{color:var(--red);font-size:15px;}
+  .ht.lost{color:rgba(255,49,49,0.22);}
+  .pw{margin-bottom:20px;}
+  .pl{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(200,230,240,0.45);margin-bottom:6px;letter-spacing:0.1em;}
+  .pb{height:5px;background:rgba(0,212,255,0.1);border-radius:3px;overflow:hidden;}
+  .pf{height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));border-radius:3px;transition:width 0.5s ease;box-shadow:0 0 8px rgba(0,212,255,0.45);}
+  .qn{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--cyan);letter-spacing:0.15em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .qb{background:rgba(0,212,255,0.1);border:1px solid var(--border);border-radius:20px;padding:3px 12px;font-size:11px;display:inline-flex;align-items:center;gap:4px;}
+  .qi{width:60px;height:60px;margin:0 auto 14px;display:block;}
+  .qt{font-size:clamp(15px,2vw,19px);font-weight:600;line-height:1.5;color:#e8f4fc;margin-bottom:26px;text-align:center;}
+  .og{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:580px){.og{grid-template-columns:1fr;}}
+  .ob{background:rgba(0,0,0,0.32);border:1px solid rgba(0,212,255,0.18);border-radius:10px;padding:14px 18px;cursor:pointer;text-align:left;font-size:13.5px;color:#c8e6f0;font-family:'Exo 2',sans-serif;line-height:1.45;transition:all 0.22s;position:relative;overflow:hidden;}
+  .ob::before{content:'';position:absolute;left:0;top:0;height:100%;width:3px;background:var(--cyan);transform:scaleY(0);transition:transform 0.22s;border-radius:3px 0 0 3px;}
+  .ob:hover{background:rgba(0,212,255,0.09);border-color:var(--cyan);transform:translateX(4px);}
+  .ob:hover::before{transform:scaleY(1);}
+  .ob.correct{background:rgba(0,255,65,0.13);border-color:var(--green);color:var(--green);animation:cp 0.45s ease;pointer-events:none;}
+  .ob.correct::before{background:var(--green);transform:scaleY(1);}
+  .ob.wrong{background:rgba(255,49,49,0.11);border-color:var(--red);color:var(--red);animation:ws 0.38s ease;pointer-events:none;}
+  .ob.wrong::before{background:var(--red);transform:scaleY(1);}
+  .ob.disabled{pointer-events:none;opacity:0.42;}
+  @keyframes cp{0%{transform:scale(1);}35%{transform:scale(1.03);}100%{transform:scale(1);}}
+  @keyframes ws{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+  .ol{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:4px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.28);font-size:11px;font-weight:700;margin-right:9px;font-family:'Orbitron',monospace;color:var(--cyan);flex-shrink:0;}
+  .oi{display:flex;align-items:flex-start;}
+  .cb{display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.18);border-radius:20px;padding:4px 14px;font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--cyan);letter-spacing:0.1em;margin-bottom:14px;}
+  .cd{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pu 1.5s infinite;}
+  .fo{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:100;pointer-events:none;opacity:0;transition:opacity 0.28s;}
+  .fo.show{opacity:1;}
+  .fm{font-family:'Orbitron',monospace;font-size:clamp(26px,5vw,50px);font-weight:900;letter-spacing:0.1em;text-shadow:0 0 36px currentColor;animation:fa 0.45s ease;}
+  @keyframes fa{0%{transform:scale(0.5);opacity:0;}60%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+  .fm.correct{color:var(--green);}
+  .fm.wrong{color:var(--red);}
+  .eb{background:rgba(0,212,255,0.055);border:1px solid rgba(0,212,255,0.18);border-radius:10px;padding:13px 17px;margin-top:18px;font-family:'Share Tech Mono',monospace;font-size:12.5px;color:rgba(200,230,240,0.78);line-height:1.65;animation:fi 0.38s ease;display:none;}
+  .eb.show{display:block;}
+  .el{color:var(--cyan);font-size:10px;letter-spacing:0.15em;margin-bottom:5px;}
+  .bn{display:block;margin:18px auto 0;background:transparent;border:2px solid var(--green);color:var(--green);font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:0.12em;padding:11px 34px;border-radius:8px;cursor:pointer;transition:all 0.28s;text-transform:uppercase;}
+  .bn:hover{background:rgba(0,255,65,0.1);box-shadow:0 0 20px rgba(0,255,65,0.28);}
+  #sr2{text-align:center;}
+  .rg{font-family:'Orbitron',monospace;font-size:clamp(56px,11vw,96px);font-weight:900;line-height:1;display:block;margin:6px 0 4px;animation:gp 0.75s cubic-bezier(0.34,1.56,0.64,1) both;}
+  @keyframes gp{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  .rg.s{color:var(--green);text-shadow:0 0 38px var(--green);}
+  .rg.a{color:var(--cyan);text-shadow:0 0 38px var(--cyan);}
+  .rg.b{color:var(--yellow);text-shadow:0 0 28px var(--yellow);}
+  .rg.c{color:rgba(200,230,240,0.88);}
+  .rg.f{color:var(--red);text-shadow:0 0 28px var(--red);}
+  .rl{font-family:'Share Tech Mono',monospace;font-size:13px;letter-spacing:0.2em;color:rgba(200,230,240,0.55);margin-bottom:18px;text-transform:uppercase;}
+  .rt{font-family:'Orbitron',monospace;font-size:clamp(17px,2.8vw,24px);color:#e8f4fc;margin-bottom:8px;}
+  .rd{font-size:13.5px;color:rgba(200,230,240,0.68);max-width:460px;margin:0 auto 26px;line-height:1.65;}
+  .rs{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-bottom:28px;}
+  .rc{background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:10px;padding:14px 22px;min-width:120px;}
+  .rn{font-family:'Orbitron',monospace;font-size:24px;font-weight:700;display:block;}
+  .rlb{font-size:10px;color:rgba(200,230,240,0.45);letter-spacing:0.1em;margin-top:4px;display:block;font-family:'Share Tech Mono',monospace;}
+  .br{background:transparent;border:2px solid var(--cyan);color:var(--cyan);font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:0.12em;padding:13px 38px;border-radius:8px;cursor:pointer;transition:all 0.28s;text-transform:uppercase;}
+  .br:hover{background:rgba(0,212,255,0.09);box-shadow:0 0 22px rgba(0,212,255,0.38);transform:scale(1.04);}
+  .si{position:fixed;top:20px;right:20px;z-index:50;background:rgba(0,0,0,0.75);border:1px solid rgba(255,215,0,0.35);border-radius:8px;padding:8px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--yellow);opacity:0;transition:all 0.3s;transform:translateX(20px);}
+  .si.show{opacity:1;transform:translateX(0);}
+  .pp{position:fixed;z-index:200;font-family:'Orbitron',monospace;font-size:20px;font-weight:700;pointer-events:none;animation:pp 1.15s ease forwards;}
+  @keyframes pp{0%{transform:translateY(0) scale(0.8);opacity:1;}100%{transform:translateY(-75px) scale(1.1);opacity:0;}}
+  .dc{position:fixed;opacity:0.055;pointer-events:none;z-index:0;}
+  .dl{left:-55px;top:50%;transform:translateY(-50%);}
+  .dr{right:-55px;top:28%;}
+</style>
+</head>
+<body>
+<canvas id="mc"></canvas>
+<div class="sl"></div>
+<div class="gb"></div>
+<svg class="dc dl" width="190" height="480" viewBox="0 0 190 480">
+  <path d="M175 0L175 75L135 75L135 135L95 135L95 195L55 195L55 255L15 255" stroke="#00d4ff" stroke-width="1.5" fill="none"/>
+  <circle cx="175" cy="0" r="5" fill="#00d4ff"/><circle cx="135" cy="75" r="4" fill="#00ff41"/>
+  <circle cx="95" cy="135" r="4" fill="#00d4ff"/><circle cx="55" cy="195" r="4" fill="#00ff41"/>
+  <circle cx="15" cy="255" r="5" fill="#00d4ff"/>
+  <path d="M135 195L155 195L155 290L175 290" stroke="#00ff41" stroke-width="1" fill="none" stroke-dasharray="4,4"/>
+  <circle cx="175" cy="290" r="3" fill="#00ff41"/>
+</svg>
+<svg class="dc dr" width="190" height="380" viewBox="0 0 190 380">
+  <path d="M15 0L15 55L55 55L55 125L95 125L95 190L135 190L135 270L175 270" stroke="#00d4ff" stroke-width="1.5" fill="none"/>
+  <circle cx="15" cy="0" r="5" fill="#00ff41"/><circle cx="55" cy="55" r="4" fill="#00d4ff"/>
+  <circle cx="95" cy="125" r="4" fill="#00ff41"/><circle cx="135" cy="190" r="4" fill="#00d4ff"/>
+  <circle cx="175" cy="270" r="5" fill="#00ff41"/>
+</svg>
+
+<div id="app">
+
+<!-- WELCOME -->
+<div id="sw" class="screen active">
+  <svg class="li" viewBox="0 0 110 110" fill="none">
+    <polygon points="55,7 103,32 103,78 55,103 7,78 7,32" fill="rgba(0,212,255,0.07)" stroke="#00d4ff" stroke-width="1.4"/>
+    <polygon points="55,18 93,40 93,70 55,92 17,70 17,40" fill="rgba(0,255,65,0.04)" stroke="#00ff41" stroke-width="1" stroke-dasharray="3,3"/>
+    <path d="M55 35L55 57M46 49L55 58L64 49" stroke="#00ff41" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="41" y="57" width="28" height="20" rx="3" fill="rgba(0,212,255,0.12)" stroke="#00d4ff" stroke-width="1.4"/>
+    <circle cx="55" cy="67" r="3.5" fill="#00d4ff" opacity="0.8"/>
+    <path d="M55 67L55 72" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="27" cy="55" r="3" fill="#00ff41" opacity="0.55"><animate attributeName="opacity" values="0.3;0.9;0.3" dur="2s" repeatCount="indefinite"/></circle>
+    <circle cx="83" cy="55" r="3" fill="#00ff41" opacity="0.55"><animate attributeName="opacity" values="0.9;0.3;0.9" dur="2s" repeatCount="indefinite"/></circle>
+    <circle cx="55" cy="20" r="2.5" fill="#00d4ff" opacity="0.7"><animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/></circle>
+  </svg>
+  <h1 class="mt glitch" data-text="KÜBERKAITSEAKADEEMIA">KÜBERKAITSEAKADEEMIA</h1>
+  <p class="st">[ KÜBERTURVALISUSE VIKTORIINIMÄNG ]</p>
+  <div class="panel" style="max-width:700px;margin:0 auto 26px;">
+    <div class="c1"></div><div class="c2"></div><div class="c3"></div><div class="c4"></div>
+    <p class="wt">&gt; MISSIOON LAADITUD ✓<br>&gt; TURBETASE: KLASS 10–12<br>&gt; TEEMAD: OHUD · SM-MEETODID · KAITSE<br><br>Testi oma küberteadlikkust! 12 küsimust hõlmavad ELi küberohtusid, sotsiaalse manipulatsiooni 8 meetodit ja kaitsestrateegiaid.</p>
+    <div class="sr">
+      <div class="sc2"><span class="sn">5,5T€</span><span class="sl2">Küberkuritegevuse kulu</span></div>
+      <div class="sc2"><span class="sn">47%</span><span class="sl2">Kättesaadavusohud</span></div>
+      <div class="sc2"><span class="sn">8</span><span class="sl2">SM meetodit</span></div>
+    </div>
+    <div class="tp">
+      <span class="pill">Andmepüük</span><span class="pill">Lunavara</span><span class="pill">Häälkalastus</span>
+      <span class="pill">Peibutamine</span><span class="pill">Pahavara</span><span class="pill">Tarneahelarünne</span><span class="pill">Kaitsemeetmed</span>
+    </div>
+    <div style="text-align:center;"><button class="bs" onclick="startGame()">▶ ALUSTA MISSIOON</button></div>
+  </div>
+  <p style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(200,230,240,0.28);text-align:center;letter-spacing:0.1em;">KLASS 10–12 · ELi NÕUKOGU & ENISA ANDMED</p>
+</div>
+
+<!-- GAME -->
+<div id="sg" class="screen">
+  <div class="hud">
+    <div class="hi"><svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" stroke="#00d4ff" stroke-width="1.2"/><path d="M7.5 4v3.5l2.5 1.5" stroke="#00d4ff" stroke-width="1.2" stroke-linecap="round"/></svg>KÜSIMUS <span class="hv" id="hq">1/12</span></div>
+    <div class="hi"><svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 2l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" stroke="#ffd700" stroke-width="1.1" stroke-linejoin="round"/></svg>SKOOR <span class="hv hg" id="hs">0</span></div>
+    <div class="hi">ELUD <div class="lv" id="ld"><span class="ht">♥</span><span class="ht">♥</span><span class="ht">♥</span></div></div>
+  </div>
+  <div class="pw"><div class="pl">PROGRESS: <span id="pp2">0%</span></div><div class="pb"><div class="pf" id="pf" style="width:0%"></div></div></div>
+  <div class="panel" id="qp">
+    <div class="c1"></div><div class="c2"></div><div class="c3"></div><div class="c4"></div>
+    <div style="text-align:center;">
+      <div class="cb"><span class="cd"></span><span id="qcat">ÜLDTEADMISED</span></div>
+      <div class="qn"><span class="qb">▸ KÜSIMUS <span id="qnum">01</span></span><span style="opacity:0.35;">───────────</span></div>
+      <svg class="qi" id="qi" viewBox="0 0 64 64" fill="none"></svg>
+      <p class="qt" id="qtxt">Laen...</p>
+    </div>
+    <div class="og" id="oc"></div>
+    <div class="eb" id="exb"><div class="el">▸ SELGITUS</div><div id="ext"></div></div>
+    <button class="bn" id="nxt" style="display:none;" onclick="nextQ()">JÄRGMINE KÜSIMUS →</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="sr2" class="screen">
+  <div class="panel" style="max-width:700px;margin:0 auto;">
+    <div class="c1"></div><div class="c2"></div><div class="c3"></div><div class="c4"></div>
+    <p style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(200,230,240,0.45);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:6px;">MISSIOON LÕPETATUD</p>
+    <span class="rg" id="rg">S</span>
+    <p class="rl" id="rlb2">KÜBERKAITSEEKSPERT</p>
+    <p class="rt" id="rtit">Suurepärane töö!</p>
+    <p class="rd" id="rdesc">Sa oled tõeline küberkaitse spetsialist.</p>
+    <div class="rs">
+      <div class="rc"><span class="rn" id="rscore" style="color:var(--green)">0</span><span class="rlb">PUNKTID</span></div>
+      <div class="rc"><span class="rn" id="rcorr" style="color:var(--cyan)">0/12</span><span class="rlb">ÕIGED</span></div>
+      <div class="rc"><span class="rn" id="rpct" style="color:var(--yellow)">0%</span><span class="rlb">TÄPSUS</span></div>
+    </div>
+    <div id="rach" style="margin-bottom:26px;"></div>
+    <button class="br" onclick="restartGame()">↺ MÄNGI UUESTI</button>
+  </div>
+</div>
+
+</div>
+
+<div class="fo" id="fo"><div class="fm" id="fm"></div></div>
+<div class="si" id="si">🔥 <span id="sn2">3</span> JÄRJEST!</div>
+
+<script>
+// MATRIX
+const canvas=document.getElementById('mc'),ctx=canvas.getContext('2d');
+let cols,drops;
+function initM(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;cols=Math.floor(canvas.width/18);drops=Array(cols).fill(1);}
+const chars='アイウカキクSABCD0123КЙБЕРО#@%!?<>';
+function drawM(){ctx.fillStyle='rgba(5,10,14,0.05)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.font='13px Share Tech Mono,monospace';for(let i=0;i<drops.length;i++){const c=chars[Math.floor(Math.random()*chars.length)];ctx.fillStyle=drops[i]*18>canvas.height*0.8?'#00ff4125':'#00ff41';ctx.fillText(c,i*18,drops[i]*18);if(drops[i]*18>canvas.height&&Math.random()>0.975)drops[i]=0;drops[i]++;}}
+initM();setInterval(drawM,50);window.addEventListener('resize',initM);
+
+// ICONS
+const ICO={
+  shield:`<path d="M32 8L52 16L52 36C52 48 42 56 32 60C22 56 12 48 12 36L12 16Z" stroke="#00d4ff" stroke-width="1.5" fill="rgba(0,212,255,0.1)"/><path d="M24 32L30 38L42 26" stroke="#00ff41" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+  email:`<rect x="10" y="18" width="44" height="30" rx="3" stroke="#00d4ff" stroke-width="1.5" fill="rgba(0,212,255,0.08)"/><path d="M10 22L32 38L54 22" stroke="#00d4ff" stroke-width="1.5" fill="none"/><line x1="22" y1="44" x2="14" y2="52" stroke="#ff3131" stroke-width="1.2" stroke-dasharray="2,2"/><line x1="42" y1="44" x2="50" y2="52" stroke="#ff3131" stroke-width="1.2" stroke-dasharray="2,2"/>`,
+  phone:`<rect x="22" y="8" width="20" height="48" rx="4" stroke="#00ff41" stroke-width="1.5" fill="rgba(0,255,65,0.07)"/><circle cx="32" cy="50" r="3" stroke="#00ff41" stroke-width="1.2" fill="none"/><line x1="28" y1="14" x2="36" y2="14" stroke="#00ff41" stroke-width="2" stroke-linecap="round"/><path d="M18 26C16 30 16 36 18 40M46 26C48 30 48 36 46 40" stroke="#ff3131" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-dasharray="2,2"/>`,
+  gift:`<rect x="14" y="28" width="36" height="28" rx="2" stroke="#ffd700" stroke-width="1.5" fill="rgba(255,215,0,0.07)"/><rect x="14" y="20" width="36" height="10" rx="2" stroke="#ffd700" stroke-width="1.5" fill="rgba(255,215,0,0.05)"/><line x1="32" y1="20" x2="32" y2="56" stroke="#ffd700" stroke-width="1.5"/><path d="M32 20C32 20 24 12 20 16C16 20 24 24 32 20Z" stroke="#ffd700" stroke-width="1" fill="rgba(255,215,0,0.1)"/><path d="M32 20C32 20 40 12 44 16C48 20 40 24 32 20Z" stroke="#ffd700" stroke-width="1" fill="rgba(255,215,0,0.1)"/>`,
+  mask:`<path d="M32 12C18 12 10 22 10 34C10 46 18 52 32 52C46 52 54 46 54 34C54 22 46 12 32 12Z" stroke="#ff3131" stroke-width="1.5" fill="rgba(255,49,49,0.08)"/><circle cx="24" cy="32" r="5" stroke="#ff3131" stroke-width="1.5" fill="none"/><circle cx="40" cy="32" r="5" stroke="#ff3131" stroke-width="1.5" fill="none"/><path d="M26 42C28 44 36 44 38 42" stroke="#ff3131" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+  key:`<circle cx="24" cy="32" r="12" stroke="#00ff41" stroke-width="1.5" fill="rgba(0,255,65,0.07)"/><path d="M32 32L54 32M48 32L48 40M42 32L42 38" stroke="#00ff41" stroke-width="2" stroke-linecap="round"/>`,
+  lock:`<rect x="20" y="30" width="24" height="20" rx="3" stroke="#ff3131" stroke-width="1.5" fill="rgba(255,49,49,0.09)"/><path d="M25 30L25 24C25 18 39 18 39 24L39 30" stroke="#ff3131" stroke-width="1.5" fill="none"/><circle cx="32" cy="40" r="3" fill="#ff3131"/><line x1="32" y1="43" x2="32" y2="46" stroke="#ff3131" stroke-width="1.5"/>`,
+  virus:`<circle cx="32" cy="32" r="11" stroke="#ff3131" stroke-width="1.5" fill="rgba(255,49,49,0.09)"/><line x1="32" y1="12" x2="32" y2="21" stroke="#ff3131" stroke-width="1.5"/><line x1="32" y1="43" x2="32" y2="52" stroke="#ff3131" stroke-width="1.5"/><line x1="12" y1="32" x2="21" y2="32" stroke="#ff3131" stroke-width="1.5"/><line x1="43" y1="32" x2="52" y2="32" stroke="#ff3131" stroke-width="1.5"/><circle cx="32" cy="12" r="3" fill="#ff3131"/><circle cx="32" cy="52" r="3" fill="#ff3131"/><circle cx="12" cy="32" r="3" fill="#ff3131"/><circle cx="52" cy="32" r="3" fill="#ff3131"/><circle cx="32" cy="32" r="4" fill="#ff3131" opacity="0.6"><animate attributeName="r" values="4;6;4" dur="1.5s" repeatCount="indefinite"/></circle>`,
+  chart:`<rect x="10" y="10" width="44" height="44" rx="3" stroke="#00d4ff" stroke-width="1" fill="rgba(0,212,255,0.05)"/><rect x="16" y="38" width="7" height="10" fill="#00ff41" opacity="0.7"/><rect x="27" y="30" width="7" height="18" fill="#00d4ff" opacity="0.7"/><rect x="38" y="20" width="7" height="28" fill="#ffd700" opacity="0.7"/>`,
+  building:`<rect x="12" y="20" width="40" height="36" rx="2" stroke="#00d4ff" stroke-width="1.5" fill="rgba(0,212,255,0.07)"/><rect x="16" y="24" width="6" height="6" fill="#00d4ff" opacity="0.5"/><rect x="26" y="24" width="6" height="6" fill="#00d4ff" opacity="0.5"/><rect x="36" y="24" width="6" height="6" fill="#ff3131" opacity="0.7"/><rect x="16" y="34" width="6" height="6" fill="#00d4ff" opacity="0.5"/><rect x="26" y="34" width="6" height="6" fill="#00d4ff" opacity="0.5"/><rect x="36" y="34" width="6" height="6" fill="#00d4ff" opacity="0.5"/><rect x="26" y="44" width="12" height="12" fill="#00ff41" opacity="0.25"/><line x1="12" y1="56" x2="52" y2="56" stroke="#00d4ff" stroke-width="1.5"/>`,
+  spy:`<circle cx="32" cy="22" r="10" stroke="#00d4ff" stroke-width="1.5" fill="rgba(0,212,255,0.07)"/><path d="M16 54C16 42 48 42 48 54" stroke="#00d4ff" stroke-width="1.5" fill="none"/><rect x="22" y="38" width="20" height="9" rx="2" fill="rgba(0,0,0,0.55)" stroke="#ff3131" stroke-width="1"/><text x="32" y="46" text-anchor="middle" font-size="6.5" font-family="Share Tech Mono" fill="#ff3131">RIIK</text>`,
+  chain:`<circle cx="20" cy="32" r="8" stroke="#ffd700" stroke-width="2" fill="rgba(255,215,0,0.07)"/><circle cx="44" cy="32" r="8" stroke="#ffd700" stroke-width="2" fill="rgba(255,215,0,0.07)"/><line x1="28" y1="32" x2="36" y2="32" stroke="#ffd700" stroke-width="2"/><path d="M36 20L44 32L36 44" stroke="#ff3131" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/>`
+};
+
+// QUESTIONS — all options deliberately kept similar in length
+const QS=[
+  {
+    id:1,cat:"PÕHIMÕISTED",icon:"shield",
+    q:"Mis on sotsiaalne manipulatsioon?",
+    opts:[
+      "Tarkvararünnak, mis rikub süsteemi automaatselt",
+      "Võrguliikluse ülekoormamine suurte andmepakettidega",
+      "Psühholoogilised võtted inimeste petmiseks tundliku teabe saamiseks",
+      "Paroolide automaatne äraarvaamine tarkvaraprogrammiga"
+    ],
+    c:2,
+    ex:"Sotsiaalne manipulatsioon tugineb psühholoogiale, mitte tehnikale. Ründaja esineb usaldusväärse isikuna – näiteks kolleegina – et saada tundlikku teavet nagu paroolid või finantsandmed."
+  },
+  {
+    id:2,cat:"SM-MEETODID",icon:"email",
+    q:"Mis on andmepüük (phishing)?",
+    opts:[
+      "Petlikud kirjad või sõnumid, et saada tundlikku teavet",
+      "Võrguliikluse pealtkuulamine paroolide varastamiseks",
+      "Võlts töötajana esinemine kontoris füüsiliselt",
+      "Pahavara levitamine nakatunud USB-mälupulkade kaudu"
+    ],
+    c:0,
+    ex:"Andmepüük toimub petlike e-kirjade, sõnumite või linkide kaudu, mis jäljendavad usaldusväärseid allikaid. Eesmärk on saada paroole, krediitkaardi andmeid või muid isikuandmeid."
+  },
+  {
+    id:3,cat:"SM-MEETODID",icon:"phone",
+    q:"Mis on häälkalastus (vishing)?",
+    opts:[
+      "Petturlik kirjavahetus sotsiaalmeedia sõnumite kaudu",
+      "Võltsveebisaitide loomine pangateenuste imiteerimiseks",
+      "Pahavara manustamine e-kirja lisade kaudu ohvrile",
+      "Andmepüük, mis toimub telefonikõnede teel"
+    ],
+    c:3,
+    ex:"Häälkalastuse puhul helistab ründaja ohvrile, teeseldes end panga, politsei või muu usaldusväärse asutuse esindajana. Eesmärk on telefoni teel tundlikku teavet välja petta."
+  },
+  {
+    id:4,cat:"SM-MEETODID",icon:"gift",
+    q:"Mis on peibutamine (baiting)?",
+    opts:[
+      "Ohvri jälgimine avalikus kohas isikliku teabe kogumiseks",
+      "Ahvatleva pakkumise tegemine vastutasuks isikuandmete eest",
+      "Kellegi teisena esinemine kirjavahetuses või koosolekul",
+      "Populaarsete teemade kasutamine sotsiaalmeedia petusõnumites"
+    ],
+    c:1,
+    ex:"Peibutamisel pakub ründaja midagi ahvatlevat – näiteks tasuta tarkvara või auhinda – vastutasuks isikuandmete eest. Allalaaditav fail sisaldab sageli pahavara."
+  },
+  {
+    id:5,cat:"SM-MEETODID",icon:"mask",
+    q:"Mis on ettekäänete kasutamine (pretexting)?",
+    opts:[
+      "Paroolide murdmine automatiseeritud sõnaraamaturünnakuga",
+      "Krüpteeritud failide avamine ilma dekrüpteerimisvõtmeta",
+      "Väljamõeldud loo kasutamine usalduse võitmiseks info saamiseks",
+      "Nakatunud failide saatmine e-posti lisade kaudu ohvrile"
+    ],
+    c:2,
+    ex:"Ettekäänete puhul mõtleb ründaja välja usutava loo – näiteks teeseldes end IT-töötaja, kolleegi või pangaesindajana – et võita usaldus ja saada tundlikku teavet."
+  },
+  {
+    id:6,cat:"KAITSEMEETMED",icon:"key",
+    q:"Mida soovitatakse eelkõige veebikontode kaitseks?",
+    opts:[
+      "Mitmikautentimise kasutamine, mis lisab täiendava turvakihi",
+      "Sama tugevat parooli kasutamine kõigil kontodel",
+      "Viirusetõrje desinstallimine ja uuesti paigaldamine kord kuus",
+      "Kõigi sotsiaalmeedia kontode kustutamine kohe"
+    ],
+    c:0,
+    ex:"Mitmikautentimine (MFA) on üks tõhusamaid kaitsemeetmeid. Isegi kui parool varastatakse, vajab ründaja sisselogimiseks teist tõendit – näiteks SMSi koodi või autentimisrakendust."
+  },
+  {
+    id:7,cat:"KAITSEMEETMED",icon:"lock",
+    q:"Keegi helistab ja väidab end olevat su panga töötaja. Mida teed?",
+    opts:[
+      "Palu tõendada isikut ja kontrolli asutusega otse ühendust võttes",
+      "Vasta kõigile küsimustele, sest pank peab sind kaitsma",
+      "Anna parool üle, kui kõne tundub ametlik ja usaldusväärne",
+      "Lõpeta kõne ja oota, kuni pank uuesti ise helistab"
+    ],
+    c:0,
+    ex:"Õige tegutsemisviis on lõpetada kõne ja pöörduda panga ametliku telefoninumbri kaudu. Päris pangad ei küsi paroole ega PIN-koode telefonikõnedes."
+  },
+  {
+    id:8,cat:"STATISTIKA",icon:"chart",
+    q:"Milline on kõige levinum küberohu tüüp ELis?",
+    opts:[
+      "Lunavararünnakud (38% kõigist ohtudest)",
+      "Sotsiaalne manipulatsioon (29% kõigist ohtudest)",
+      "Kättesaadavust ähvardavad ohud (47% kõigist ohtudest)",
+      "Tarneahelarünnakud (22% kõigist ohtudest)"
+    ],
+    c:2,
+    ex:"Kättesaadavust ähvardavad ohud moodustavad 47% ELi küberohtudest. Need rünnakud koormavad üle võrgutaristu, muutes teenused – näiteks veebisaidid – kättesaamatuks."
+  },
+  {
+    id:9,cat:"OHUTÜÜBID",icon:"virus",
+    q:"Mis on pahavara (malware)?",
+    opts:[
+      "Turvaline krüpteerimistarkvara andmete kaitsmiseks",
+      "Pahatahtlik tarkvara, mis kahjustab süsteeme ja varastab andmeid",
+      "Volitatud programm ettevõtte võrgu haldamiseks",
+      "Automaatne varundussüsteem, mis kopeerib faile pilve"
+    ],
+    c:1,
+    ex:"Pahavara on katustermin igasuguse pahatahtliku tarkvara kohta – viirused, nuhkvara, lunavara, troojalased. Eesmärk on tungida süsteemidesse, tekitada kahju ja varastada andmeid."
+  },
+  {
+    id:10,cat:"SIHTMÄRGID",icon:"building",
+    q:"Milline sektor on ELis küberrünnakute kõige sagedasem sihtmärk?",
+    opts:[
+      "Energeetikasektor (16% rünnetest)",
+      "Tervishoiusektor (14% rünnetest)",
+      "Avalik haldus (20% rünnetest)",
+      "Haridussektor (18% rünnetest)"
+    ],
+    c:2,
+    ex:"20% ELi küberrünnetest tabab avalikku haldust. Sellele järgnevad transport (11%), rahandus (9%) ja digitaristu (9%). Avalik haldus on sihtmärk, kuna seal hoitakse tundlikke andmeid."
+  },
+  {
+    id:11,cat:"RÜNDAJAD",icon:"spy",
+    q:"Milline rühm korraldab rünnakuid peamiselt poliitilise spionaaži eesmärgil?",
+    opts:[
+      "Häktivistid, kes tegutsevad sotsiaalse muutuse nimel",
+      "Küberkurjategijad, kes otsivad rahalist kasu",
+      "Erasektori ründeosalised, kes müüvad küberrelvi",
+      "Riigiga seotud osalised, kelle eesmärk on strateegiline luuramine"
+    ],
+    c:3,
+    ex:"Riigiga seotud osalised on valitsuste poolt toetatud rühmitused. Nad korraldavad rünnakuid poliitilistel ja strateegilistel eesmärkidel – peamiselt spionaaž, sabotaaž ja mõjuoperatsioonid."
+  },
+  {
+    id:12,cat:"OHUTÜÜBID",icon:"chain",
+    q:"Mis iseloomustab tarneahelarünnakut (supply chain attack)?",
+    opts:[
+      "Organisatsiooni ründamine tema tarneahela haavatavuste kaudu",
+      "Poodide maksesüsteemide häkkimine ostu hetkel otse",
+      "Logistikafirmade töötajate petmine lunaraha maksmiseks",
+      "Interneti-poodide toodete nimesiltide digitaalne võltsimine"
+    ],
+    c:0,
+    ex:"Tarneahelarünne tabab organisatsiooni kaudselt – tarnijate, partnerite või tarkvaravärskenduste kaudu. See võib tekitada kaskaadmõju paljudele ettevõtetele korraga."
+  }
+];
+
+// STATE
+let ST={cur:0,score:0,lives:3,corr:0,ans:false,streak:0};
+
+function startGame(){
+  showScr('sg');
+  ST={cur:0,score:0,lives:3,corr:0,ans:false,streak:0};
+  updHUD();updLives();loadQ(0);
+}
+
+function showScr(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+  const s=document.getElementById(id);s.style.display='block';s.classList.add('active');
+}
+
+function loadQ(i){
+  const q=QS[i];ST.ans=false;
+  document.getElementById('qnum').textContent=String(i+1).padStart(2,'0');
+  document.getElementById('hq').textContent=`${i+1}/12`;
+  document.getElementById('qcat').textContent=q.cat;
+  document.getElementById('qtxt').textContent=q.q;
+  document.getElementById('exb').classList.remove('show');
+  document.getElementById('nxt').style.display='none';
+  const pct=(i/12)*100;
+  document.getElementById('pf').style.width=pct+'%';
+  document.getElementById('pp2').textContent=Math.round(pct)+'%';
+  document.getElementById('qi').innerHTML=ICO[q.icon]||ICO.shield;
+  const oc=document.getElementById('oc');oc.innerHTML='';
+  ['A','B','C','D'].forEach((l,j)=>{
+    const b=document.createElement('button');b.className='ob';
+    b.innerHTML=`<div class="oi"><span class="ol">${l}</span><span>${q.opts[j]}</span></div>`;
+    b.onclick=()=>pick(j);oc.appendChild(b);
+  });
+  const p=document.getElementById('qp');p.style.opacity='0';p.style.transform='translateY(14px)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{p.style.transition='opacity 0.38s,transform 0.38s';p.style.opacity='1';p.style.transform='translateY(0)';}));
+}
+
+function pick(i){
+  if(ST.ans)return;ST.ans=true;
+  const q=QS[ST.cur];
+  const bs=document.querySelectorAll('.ob');
+  bs.forEach(b=>b.classList.add('disabled'));
+  if(i===q.c){
+    bs[i].classList.add('correct');ST.corr++;ST.streak++;
+    const pts=100+(ST.streak>2?50:0);ST.score+=pts;
+    showFB(true);showPP(pts);
+    if(ST.streak>=3)showStreak(ST.streak);
+  }else{
+    bs[i].classList.add('wrong');bs[q.c].classList.add('correct');
+    ST.lives--;ST.streak=0;showFB(false);updLives();
+  }
+  document.getElementById('ext').textContent=q.ex;
+  document.getElementById('exb').classList.add('show');
+  document.getElementById('nxt').style.display='block';
+  updHUD();
+}
+
+function showFB(ok){
+  const o=document.getElementById('fo'),m=document.getElementById('fm');
+  m.className='fm '+(ok?'correct':'wrong');
+  m.textContent=ok?['KORREKT!','SUUREPÄRANE!','TÄPNE!','BRILIANTNE!'][Math.floor(Math.random()*4)]:['VALE!','EI TÄPSU','KAHJUKS EI','PROOVI VEEL'][Math.floor(Math.random()*4)];
+  o.classList.add('show');setTimeout(()=>o.classList.remove('show'),850);
+}
+
+function showPP(pts){
+  const p=document.createElement('div');p.className='pp';p.textContent='+'+pts;
+  p.style.color=pts>100?'#ffd700':'#00ff41';p.style.left=(Math.random()*250+220)+'px';p.style.top='38%';
+  document.body.appendChild(p);setTimeout(()=>p.remove(),1200);
+}
+
+function showStreak(n){
+  const e=document.getElementById('si');document.getElementById('sn2').textContent=n;
+  e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000);
+}
+
+function updHUD(){document.getElementById('hs').textContent=ST.score;}
+function updLives(){document.querySelectorAll('.ht').forEach((h,i)=>h.classList.toggle('lost',i>=ST.lives));}
+
+function nextQ(){
+  if(ST.lives<=0){showRes();return;}
+  ST.cur++;if(ST.cur>=QS.length){showRes();return;}
+  loadQ(ST.cur);
+}
+
+function showRes(){
+  const pct=Math.round((ST.corr/12)*100);
+  let g,gc,t,d;
+  if(pct>=92){g='S';gc='s';t='Küberkaitseekspert!';d='Ülim tulemus! Sa tunned küberohtude liike ja kaitsemeetodeid peast. Tulevane küberturvalisuse professionaal!';}
+  else if(pct>=75){g='A';gc='a';t='Küberkaitsespetsialist!';d='Suurepärane! Sul on tugev arusaam nii ohtudest kui ka kaitsemeetmetest.';}
+  else if(pct>=58){g='B';gc='b';t='Hea tulemus!';d='Põhiteadmised on tugevad. Natuke lisa lugemist sotsiaalse manipulatsiooni kohta ja oled ekspert!';}
+  else if(pct>=42){g='C';gc='c';t='Rahuldav tulemus';d='Alusteadmised on olemas. Tutvu ENISA ja ELi nõukogu materjalidega ja proovi uuesti!';}
+  else{g='F';gc='f';t='Vajab parandamist';d='Ärge heitke meelt! Küberohtudega tutvumine on tänapäeval hädavajalik. Loe materjale ja proovi uuesti.';}
+  document.getElementById('rg').textContent=g;
+  document.getElementById('rg').className='rg '+gc;
+  document.getElementById('rlb2').textContent=g==='S'?'KÜBERKAITSE MAESTRO':g==='A'?'KÜBERKAITSEEKSPERT':g==='B'?'KÜBERANALÜÜTIK':g==='C'?'ÕPPIJA':'ALGAJA';
+  document.getElementById('rtit').textContent=t;
+  document.getElementById('rdesc').textContent=d;
+  document.getElementById('rscore').textContent=ST.score;
+  document.getElementById('rcorr').textContent=ST.corr+'/12';
+  document.getElementById('rpct').textContent=pct+'%';
+  const ra=document.getElementById('rach');
+  const bd=[];
+  if(ST.corr===12)bd.push({i:'⭐',t:'Täiuslik tulemus – kõik 12 vastust õiged!'});
+  if(ST.lives===3)bd.push({i:'🛡',t:'Murdmatu kaitsja – kaotamata ühtegi elu!'});
+  if(ST.score>1500)bd.push({i:'🔥',t:'Seeriate meister – erakordsed boonuspunktid!'});
+  if(ST.corr>=10)bd.push({i:'🎓',t:'Küberkaitseakadeemia eduka lõpetaja medal!'});
+  ra.innerHTML=bd.length?'<div style="margin-bottom:10px;font-family:Share Tech Mono,monospace;font-size:10px;color:rgba(200,230,240,0.45);letter-spacing:0.1em;">SAAVUTUSED</div>'+bd.map(b=>`<div style="display:flex;align-items:center;gap:10px;background:rgba(0,255,65,0.055);border:1px solid rgba(0,255,65,0.18);border-radius:8px;padding:9px 15px;margin-bottom:7px;font-size:13px;color:rgba(200,230,240,0.78)"><span style="font-size:17px">${b.i}</span><span>${b.t}</span></div>`).join(''):'';
+  showScr('sr2');
+}
+
+function restartGame(){startGame();}
+
+// particles
+(function(){
+  const ps=document.createElement('style');
+  ps.textContent='@keyframes fp0{from{transform:translate(0,0)}to{transform:translate(28px,-38px)}}@keyframes fp1{from{transform:translate(0,0)}to{transform:translate(-22px,32px)}}@keyframes fp2{from{transform:translate(0,0)}to{transform:translate(36px,18px)}}';
+  document.head.appendChild(ps);
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');const s=1.5+Math.random()*2.5;
+    const cl=['#00ff4112','#00d4ff0e','#ffffff07'];
+    p.style.cssText=`position:fixed;width:${s}px;height:${s}px;background:${cl[i%3]};border-radius:50%;left:${Math.random()*100}%;top:${Math.random()*100}%;pointer-events:none;z-index:0;animation:fp${i%3} ${9+Math.random()*10}s ${Math.random()*7}s ease-in-out infinite alternate`;
+    document.body.appendChild(p);
+  }
+})();
+</script>
+</body>
+</html>
